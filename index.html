@@ -1,0 +1,283 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Semester Timetable & Faculty Slots</title>
+<style>
+:root{--bg:#fff;--fg:#1a1a1a;--mut:#666;--card:#f4f5f7;--bd:#d5d8dd;--hd:#e3e6ee;--bad:#fca5a5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15171b;--fg:#e8e8e8;--mut:#9aa0a8;--card:#1f2228;--bd:#363a42;--hd:#2a2e36;--bad:#7f1d1d}}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.4 system-ui,sans-serif;padding:12px;max-width:1200px;margin:auto}
+h1{font-size:20px;margin:4px 0}h2{font-size:15px;margin:14px 0 6px}p{color:var(--mut);margin:2px 0 8px}
+.w{overflow-x:auto}table{border-collapse:collapse;width:100%}td,th{border:1px solid var(--bd);padding:4px 6px;text-align:center;font-size:12px;white-space:nowrap}
+th{background:var(--hd)}.tt td{min-width:62px;height:34px}.tt .lab{color:var(--mut)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.tabs button{border:1px solid var(--bd);background:var(--card);color:var(--fg);padding:6px 10px;border-radius:6px;cursor:pointer}.tabs button.on{background:var(--fg);color:var(--bg)}
+input{padding:6px;border:1px solid var(--bd);border-radius:6px;background:var(--card);color:var(--fg);width:240px;max-width:100%}
+.ft td{text-align:left;cursor:pointer}.ft tr:hover td{background:var(--hd)}.ft tr.sel td{background:var(--c)!important;color:#111;font-weight:600}
+#info{margin:6px 0;font-size:13px}.k{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 3px 0 8px}
+#bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0}#bar button{border:1px solid var(--bd);background:var(--card);color:var(--fg);padding:5px 9px;border-radius:6px;cursor:pointer}#bar button.on{background:var(--fg);color:var(--bg)}#bar input{width:140px}#clash{margin:6px 0;padding:8px 10px;border-radius:6px;font-size:13px}#clash.bad{background:var(--bad);color:#111}#clash.ok{background:var(--card);color:var(--mut)}
+</style></head><body>
+<h1>Semester Timetable &amp; Faculty Slots</h1>
+<p>Build your own timetable: pick a theory faculty and their lab is selected automatically: slot 1 theory (A1, B1, F1…) gets an afternoon/evening lab, slot 2 theory (A2, B2, F2…) gets a morning lab. You can still change the lab by hand. Clashes are flagged in red with a message. Create several timetables with + New to compare options; they are saved in this browser. Click a selected row again to clear it.</p>
+<div id="bar"></div><div id="clash"></div><div id="info"></div>
+<div class="w"><table class="tt" id="tt"></table></div>
+<div class="tabs" id="tabs"></div>
+<input id="q" placeholder="Search faculty, venue or slot">
+<div id="out"></div>
+<script>
+var C=[
+{n:'Software Engineering',c:'BCSE301',col:'#bfdbfe',T:`A2 PRP429 RAJALAKSHMI L 70
+F1 SJT501 RAMANATHAN L 70
+F1 SJT502 SATHYARAJ R 70
+F1 SJT503 SENTHILNATHAN P 70
+F1 SJT627 ARUN PRASATH G 70
+F1 SJT315 DIVYA MEENA S 70
+F2 SJT502 SENTHILNATHAN P 70
+F2 SJT504 ARIVOLI A 70
+F2 SJT503 AJITHA D 70
+F2 SJT522 NAVEENKUMAR J 70
+F2 SJT603 PRABIN S M 70
+F2 SJT415 SHOBHA REKH 70
+F1 SJT421 SWARNALATHA P 69
+F1 SJT504 ARIVOLI A 69
+F1 SJT522 NAVEENKUMAR J 69
+F1 SJT603 PRABIN S M 69
+F1 SJT604 NAGA PRIYADARSINI R 69
+F2 SJT423 MYTHILI T 69
+F2 SJT501 KAKELLI ANIL KUMAR 69
+F2 SJT513 MOHANKUMAR B 69
+F2 SJT604 NAGA PRIYADARSINI R 69
+F2 SJT617 BHAWANA TYAGI 69
+F2 SJT619 ADRIJA BHATTACHARYA 69
+F2 SJT626 SUDHAKAR K 69
+F2 SJT602 MISHA CHANDAR B 69
+B1 SJT619 MISHA CHANDAR B 68
+F1 SJT422 SARAVANAGURU RA.K 68
+F1 SJT521 VETRISELVI T 68
+F1 SJT602A CHANDRU VIGNESH C 68
+F1 SJT607 DEEPA D 68
+F1 SJT626 SUDHAKAR K 68
+F1 SJT601 NAVEEN KUMAR S 68
+F2 SJT607 DEEPA D 68
+F1 SJT508 PARTHIBAN K 67
+F1 SJT602 USHUS ELIZEBETH ZACHARIAH 67
+F2 SJT602A KALAAVATHI B 67
+F2 SJT627 ARUN PRASATH G 67
+F2 SJT601 NAVEEN KUMAR S 67
+F1 SJT505 ANTO S 66
+F1 SJT617 BHAWANA TYAGI 66
+F2 SJT422 KANNADASAN R 66
+F2 SJT505 ANTO S 66
+F2 SJT421 USHUS ELIZEBETH ZACHARIAH 65
+F2 SJT508 PARTHIBAN K 65
+F2 SJT521 VETRISELVI T 65
+F1 SJT513 MOHANKUMAR B 64
+F2 SJT424 BAIJU B V 63
+F1 SJT423 ANAND BIHARI 62
+F1 SJT619 ADRIJA BHATTACHARYA 60
+F1 SJT424 BAIJU B V 51`,L:`L11+L12 SJT622 NAVEENKUMAR J 70
+L1+L2 SJT219 RAJALAKSHMI L 70
+L21+L22 SJT622 SHOBHA REKH 70
+L39+L40 SJT621 RAMANATHAN L 70
+L43+L44 SJT621 SATHYARAJ R 70
+L45+L46 SJT316 DIVYA MEENA S 70
+L49+L50 SJT316 SENTHILNATHAN P 70
+L53+L54 SJT316 ARUN PRASATH G 70
+L7+L8 SJT316 SENTHILNATHAN P 70
+L9+L10 SJT316 PRABIN S M 70
+L15+L16 SJT316 KAKELLI ANIL KUMAR 69
+L1+L2 SJT316 MISHA CHANDAR B 69
+L25+L26 SJT316 SUDHAKAR K 69
+L27+L28 SJT316 MYTHILI T 69
+L47+L48 SJT622 NAVEENKUMAR J 69
+L49+L50 SJT516 SWARNALATHA P 69
+L51+L52 SJT622 PRABIN S M 69
+L55+L56 SJT316 ARIVOLI A 69
+L9+L10 SJT621 MOHANKUMAR B 69
+L31+L32 SJT621 SARAVANAGURU RA.K 68
+L39+L40 SJT622 VETRISELVI T 68
+L43+L44 SJT416 CHANDRU VIGNESH C 68
+L49+L50 SJT416 MISHA CHANDAR B 68
+L13+L14 SJT316 KALAAVATHI B 67
+L41+L42 SJT316 PARTHIBAN K 67
+L55+L56 SJT621 USHUS ELIZEBETH ZACHARIAH 67
+L3+L4 SJT621 KANNADASAN R 66
+L5+L6 SJT622 ANTO S 66
+L19+L20 SJT622 VETRISELVI T 65
+L21+L22 SJT621 USHUS ELIZEBETH ZACHARIAH 65
+L21+L22 SJT316 PARTHIBAN K 65
+L29+L30 SJT417 AJITHA D 65
+L5+L6 SJT417 ARIVOLI A 65
+L19+L20 SJT417 NAGA PRIYADARSINI R 64
+L23+L24 SJT317 ADRIJA BHATTACHARYA 64
+L25+L26 SJT417 BHAWANA TYAGI 64
+L35+L36 SJT317 NAGA PRIYADARSINI R 64
+L37+L38 SJT621 MOHANKUMAR B 64
+L23+L24 SJT316 BAIJU B V 63
+L35+L36 SJT417 NAVEEN KUMAR S 63
+L47+L48 SJT317 DEEPA D 63
+L53+L54 SJT417 SUDHAKAR K 63
+L7+L8 SJT417 DEEPA D 63
+L11+L12 SJT417 NAVEEN KUMAR S 62
+L33+L34 SJT316 ANAND BIHARI 62
+L9+L10 SJT417 ARUN PRASATH G 62
+L37+L38 SJT317 BHAWANA TYAGI 61
+L41+L42 SJT417 ANTO S 61
+L51+L52 SJT416 ADRIJA BHATTACHARYA 60
+L51+L52 SJT316 BAIJU B V 51`},
+{n:'Cryptography & Network Security',c:'BCSE309',col:'#fde68a',T:`G1 SJT521 JENICKA S 70
+G1 SJT603 KOVENDAN A.K.P 70
+G2 SJT421 SANTHI H 70
+G2 SJT422 SRIHARI MANDAVA 70
+G2 SJT423 KRISHNAMOORTHY A 70
+G2 SJT501 SASIKALA .R 70
+G2 SJT502 DEEPIKAA S 70
+G2 SJT521 JENICKA S 70
+G2 SJT627 SARWESH P 70
+G2 SJT617 THANGARAMYA K 70
+D1 SJT607 THANGARAMYA K 69
+G1 SJT423 SATISH C.J 69
+G1 SJT501 NARESH K 69
+G1 SJT522 JAYA SUBALAKSHMI R 69
+G1 SJT607 S M FAROOQ 69
+G1 SJT626 BERLIN M A 69
+G2 SJT604 MADHU VISWANATHAM V 69
+G2 SJT505 ILAYARAJA V 69
+G2 SJT607 S M FAROOQ 69
+G2 SJT619 MARIAPPAN R 69
+G2 SJT603 KOVENDAN A.K.P 69
+G1 SJT424 RAMANI S 68
+G1 SJT502 DEEPIKAA S 68
+G1 SJT409 MURUGAN K 68
+G1 SJT602A BHUVANESWARI M 68
+G1 SJT604 ISLABUDEEN M 68
+G1 SJT408 SANTHI H 68
+G1 SJT308 RAGAVAN K 68
+G2 SJT424 RAMANI S 68
+G2 SJT513 RUBY D 68
+G2 SJT522 JAYA SUBALAKSHMI R 68
+G2 SJT602A SOMASUNDARAM S K 68
+G1 SJT503 VIJAYASHREE J 67
+G1 SJT505 NAVAMANI T M 67
+G1 SJT508 SELVI M 67
+G1 SJT601 UMAMAHESWARI M 67
+G2 SJT503 VIJAYASHREE J 67
+G2 SJT508 SELVI M 67
+G2 SJT409 MURUGAN K 66
+G1 SJT422 MOHANA SUNDARI L 65
+G1 SJT504 JAYASHREE J 65
+G2 SJT504 JAYASHREE J 65
+G2 SJT601 THAMIZHARASAN S 65
+G2 SJT626 BERLIN M A 65
+G1 SJT513 RUBY D 63
+G1 SJT627 NITHYA N S 63
+G1 SJT619 SURESH A 63
+G2 SJT602 SREETHAR S 62
+G1 SJT602 SREETHAR S 57`,L:`L13+L14 SJT419 JENICKA S 70
+L15+L16 SJT318 SANTHI H 70
+L19+L20 SJT316 SARWESH P 70
+L21+L22 SJT318 SASIKALA .R 70
+L23+L24 SJT318 DEEPIKAA S 70
+L25+L26 SJT416 THANGARAMYA K 70
+L29+L30 SJT318 KRISHNAMOORTHY A 70
+L49+L50 SJT419 JENICKA S 70
+L5+L6 SJT318 SRIHARI MANDAVA 70
+L33+L34 SJT318 SATISH C.J 69
+L39+L40 SJT318 NARESH K 69
+L55+L56 SJT416 JAYA SUBALAKSHMI R 69
+L7+L8 SJT318 MARIAPPAN R 69
+L9+L10 SJT318 MADHU VISWANATHAM V 69
+L9+L10 SJT416 ILAYARAJA V 69
+L15+L16 SJT416 RAMANI S 68
+L25+L26 SJT419 RUBY D 68
+L37+L38 SJT515 ISLABUDEEN M 68
+L41+L42 SJT419 MURUGAN K 68
+L43+L44 SJT318 SANTHI H 68
+L43+L44 SJT316 DEEPIKAA S 68
+L45+L46 SJT416 RAMANI S 68
+L51+L52 SJT515 RAGAVAN K 68
+L23+L24 SJT416 VIJAYASHREE J 67
+L27+L28 SJT318 SELVI M 67
+L31+L32 SJT416 VIJAYASHREE J 67
+L37+L38 SJT316 NAVAMANI T M 67
+L47+L48 SJT316 UMAMAHESWARI M 67
+L57+L58 SJT318 SELVI M 67
+L1+L2 SJT419 MURUGAN K 66
+L11+L12 SJT416 JAYASHREE J 65
+L29+L30 SJT316 THAMIZHARASAN S 65
+L41+L42 SJT317 KOVENDAN A.K.P 65
+L55+L56 SJT318 MOHANA SUNDARI L 65
+L57+L58 SJT416 JAYASHREE J 65
+L13+L14 SJT317 KOVENDAN A.K.P 64
+L25+L26 SJT317 S M FAROOQ 64
+L31+L32 SJT317 BERLIN M A 64
+L45+L46 SJT317 THANGARAMYA K 64
+L53+L54 SJT317 S M FAROOQ 64
+L27+L28 SJT317 JAYA SUBALAKSHMI R 63
+L31+L32 SJT419 RUBY D 63
+L35+L36 SJT318 SURESH A 63
+L49+L50 SJT318 NITHYA N S 63
+L51+L52 SJT317 BHUVANESWARI M 63
+L5+L6 SJT317 SOMASUNDARAM S K 63
+L3+L4 SJT419 SREETHAR S 62
+L19+L20 SJT317 BERLIN M A 60
+L47+L48 SJT419 SREETHAR S 57`},
+{n:'IoT Architectures & Protocols',c:'BCSE310L',col:'#bbf7d0',T:`C1 SJT408 WASHIMA TASNIN 69
+C1 SJT601 VENKATA RAMANA KASI 69
+C2 SJT408 VENKATA RAMANA KASI 69
+C1 SJT409 SHARMILA A 64
+C2 SJT407 GEETHA M 61`},
+{n:'Sensors & Actuator Devices',c:'BCSE311',col:'#fbcfe8',nt:1,T:`D1 SJT415 VIVEKANANDAN S 69
+D1 SJT505 YUVAPRIYA T 67
+D1 SJT409 JANESHWARAN G 66
+D2 SJT415 MANIMOZHI M 65
+D2 SJT421 MEDARAMETLA PRAVEENKUMAR 65`,L:`L47+L48 SJT516 VIVEKANANDAN S 69
+L45+L46 SJT516 YUVAPRIYA T 67
+L33+L34 SJT516 JANESHWARAN G 66
+L11+L12 SJT516 MANIMOZHI M 65
+L29+L30 SJT516 MEDARAMETLA PRAVEENKUMAR 65`},
+{n:'Fog & Edge Computing',c:'BCSE313L',col:'#ddd6fe',T:`B1 SJT601 KALAAVATHI B 69
+B1 SJT508 ILAYARAJA V 68
+B2 SJT505 SUNIL KUMAR 68
+B1 SJT505 BAIJU B V 64
+B2 SJT504 THAMIZHARASAN S 63`},
+{n:'Embedded Systems',c:'',col:'#fed7aa',T:''}];
+function P(s,th,nt){return s.trim()?s.trim().split('\n').map(function(l){var w=l.trim().split(/\s+/),sl=w[0];return{v:w[1],f:w.slice(2,-1).join(' '),n:w[w.length-1],sl:th?(nt?sl:sl+'+T'+sl):sl,tk:th?(nt?[sl]:[sl,'T'+sl]):sl.split('+')}}):[]}
+C.forEach(function(c,i){c.i=i;c.t=P(c.T||'',1,c.nt);c.l=P(c.L||'',0)});
+var G=[['MON','A1/L1 F1/L2 D1/L3 TB1/L4 TG1/L5 L6 A2/L31 F2/L32 D2/L33 TB2/L34 TG2/L35 L36 V3'],['TUE','B1/L7 G1/L8 E1/L9 TC1/L10 TAA1/L11 L12 B2/L37 G2/L38 E2/L39 TC2/L40 TAA2/L41 L42 V4'],['WED','C1/L13 A1/L14 F1/L15 V1/L16 V2/L17 L18 C2/L43 A2/L44 F2/L45 TD2/L46 TBB2/L47 L48 V5'],['THU','D1/L19 B1/L20 G1/L21 TE1/L22 TCC1/L23 L24 D2/L49 B2/L50 G2/L51 TE2/L52 TCC2/L53 L54 V6'],['FRI','E1/L25 C1/L26 TA1/L27 TF1/L28 TD1/L29 L30 E2/L55 C2/L56 TA2/L57 TF2/L58 TDD2/L59 L60 V7']];
+var TH=['8:00','9:00','10:00','11:00','12:00','','2:00','3:00','4:00','5:00','6:00','6:51','7:01'],LH=['8:00','8:51','9:51','10:41','11:40','12:31','2:00','2:51','3:51','4:41','5:40','6:31',''];
+var cur=0,q='',TTS=[{name:'Plan 1',pk:{}}],ti=0,pk=TTS[0].pk;
+try{var saved=JSON.parse(localStorage.getItem('tts'));if(saved&&saved.length){TTS=saved;pk=TTS[0].pk}}catch(e){}
+function sv(){try{localStorage.setItem('tts',JSON.stringify(TTS))}catch(e){}}
+function bar(){el('bar').innerHTML=TTS.map(function(t,i){return'<button class="'+(i==ti?'on':'')+'" onclick="sw('+i+')">'+t.name+'</button>'}).join('')+'<button onclick="nw()">+ New timetable</button><input value="'+TTS[ti].name.replace(/"/g,'')+'" onchange="TTS[ti].name=this.value||TTS[ti].name;sv();bar()" title="Rename"><button onclick="dl()">Delete this</button>'}
+function sw(i){ti=i;pk=TTS[i].pk;bar();show();paint()}
+function nw(){TTS.push({name:'Plan '+(TTS.length+1),pk:{}});sw(TTS.length-1);sv()}
+function dl(){if(TTS.length<2){TTS[0].pk={}}else{TTS.splice(ti,1);ti=0}pk=TTS[ti].pk;sv();bar();show();paint()}
+function el(i){return document.getElementById(i)}
+function buildTT(){var h='<tr><th>Day</th>'+TH.map(function(t,i){return'<th>'+(t||'&nbsp;')+'<br><span class="lab">'+(LH[i]||'&nbsp;')+'</span></th>'}).join('')+'</tr>';
+G.forEach(function(d,r){h+='<tr><th>'+d[0]+'</th>'+d[1].split(' ').map(function(c,j){return'<td data-c="'+c+'" id="c'+r+'_'+j+'">'+c.replace('/',' / ')+'</td>'}).join('')+'</tr>'});
+el('tt').innerHTML=h+'<tr><td colspan="14" style="text-align:left;color:var(--mut)">Top time: theory hours. Bottom time: lab hours. Theory slot / lab slot in each cell.</td></tr>'}
+function paint(){var info=[],cl=[];
+document.querySelectorAll('#tt td[data-c]').forEach(function(td){var tk=td.dataset.c.split('/'),hit=[];
+Object.keys(pk).forEach(function(k){var p=pk[k];if(p&&p.tk.some(function(x){return tk.indexOf(x)>-1}))hit.push(p)});
+var ci={};hit.forEach(function(p){ci[p.ci]=1});
+if(hit.length>1){var m=td.id.slice(1).split('_');cl.push(G[m[0]][0]+' '+(TH[m[1]]||LH[m[1]])+': '+hit.map(function(p){return C[p.ci].n+' ('+(p.lab?'lab ':'theory ')+p.sl+')'}).join(' clashes with '))}td.style.background=hit.length?(Object.keys(ci).length>1||hit.length>1?'var(--bad)':C[hit[0].ci].col):'';td.style.color=hit.length?'#111':'';
+td.title=hit.map(function(p){return C[p.ci].n+' - '+p.f}).join('\n')});
+Object.keys(pk).forEach(function(k){var p=pk[k];if(p)info.push('<span class="k" style="background:'+C[p.ci].col+'"></span>'+C[p.ci].n+': '+p.f+' ('+p.sl+(p.lab?(p.auto?' lab, auto':' lab'):'')+')')});
+el('info').innerHTML=info.join(' ')||'No faculty selected yet.';var cb=el('clash');cb.className=cl.length?'bad':'ok';cb.innerHTML=cl.length?'<b>Clash detected ('+cl.length+'):</b><br>'+cl.join('<br>'):'No clashes in this timetable.'}
+function rows(a,kind,c){var s=q.toLowerCase();
+var r=a.map(function(x,j){return{x:x,j:j}}).filter(function(o){return!s||(o.x.f+' '+o.x.v+' '+o.x.sl).toLowerCase().indexOf(s)>-1});
+return'<div class="w"><table class="ft"><tr><th>Slot</th><th>Venue</th><th>Faculty</th><th>Seats</th></tr>'+r.map(function(o){var k=c.i+kind,p=pk[k],on=p&&p.sl===o.x.sl&&p.f===o.x.f&&p.v===o.x.v;
+return'<tr class="'+(on?'sel':'')+'" style="--c:'+c.col+'" onclick="pick('+c.i+',\''+kind+'\','+o.j+')"><td>'+o.x.sl+'</td><td>'+o.x.v+'</td><td>'+o.x.f+'</td><td>'+o.x.n+'</td></tr>'}).join('')+'</table></div>'}
+function pick(i,kind,j){var c=C[i],x=(kind=='t'?c.t:c.l)[j],k=i+kind,p=pk[k];
+if(p&&p.sl===x.sl&&p.f===x.f&&p.v===x.v){delete pk[k];if(kind=='t'&&pk[i+'l']&&pk[i+'l'].auto)delete pk[i+'l']}
+else{pk[k]={ci:i,tk:x.tk,sl:x.sl,f:x.f,v:x.v,lab:kind=='l'};if(kind=='t')autoLab(c,x)}
+show();paint();sv()}
+function clashes(tk,ig){var bad=0;document.querySelectorAll('#tt td[data-c]').forEach(function(td){var ct=td.dataset.c.split('/');if(!tk.some(function(t){return ct.indexOf(t)>-1}))return;Object.keys(pk).forEach(function(k){if(k!=ig&&pk[k].tk.some(function(t){return ct.indexOf(t)>-1}))bad=1})});return bad}
+function autoLab(c,x){var ig=c.i+'l';delete pk[ig];var aft=x.tk[0].slice(-1)=='1';
+var cand=c.l.filter(function(l){var n=parseInt(l.tk[0].slice(1));return l.f===x.f&&(aft?n>30:n<=30)});
+if(!cand.length)return;var l=cand.filter(function(l){return!clashes(l.tk,ig)})[0]||cand[0];
+pk[ig]={ci:c.i,tk:l.tk,sl:l.sl,f:l.f,v:l.v,lab:true,auto:1}}
+function show(){var c=C[cur];el('tabs').innerHTML=C.map(function(x,i){return'<button class="'+(i==cur?'on':'')+'" onclick="cur='+i+';show()">'+x.n+'</button>'}).join('');
+var h='<h2>'+c.n+(c.c?' ('+c.c+')':'')+'</h2>';
+if(!c.t.length)h+='<p>No slot screenshot was provided for this course, so no faculty are listed. Send the Embedded Systems slot page and it can be added.</p>';
+else{h+='<h2>Theory slots</h2>'+rows(c.t,'t',c);if(c.l.length)h+='<h2>Lab slots</h2>'+rows(c.l,'l',c)}
+el('out').innerHTML=h}
+el('q').oninput=function(){q=this.value;show()};
+buildTT();bar();show();paint();
+</script></body></html>
